@@ -58,17 +58,18 @@ class Shader:
 # ------------  Simple color shaders ------------------------------------------
 COLOR_VERT = """#version 330 core
 layout(location = 0) in vec3 position;
+out vec4 pos;
 void main() {
     gl_Position = vec4(position, 1);
-
+    pos = gl_Position;
 }"""
 
 COLOR_FRAG = """#version 330 core
 uniform vec3 color;
 out vec4 outColor;
+in vec4 pos;
 void main() {
-    outColor = vec4(color, 1);
-
+    outColor = pos+vec4(color, 1);
 }"""
 
 
