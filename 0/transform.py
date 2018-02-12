@@ -47,6 +47,8 @@ def ortho(left, right, bot, top, near, far):
 
 def perspective(fovy, aspect, near, far):
     """ perspective projection matrix, from field of view and aspect ratio """
+    # fovy : 35/45 => angle
+    # aspect : ratio de la fenetre <idth/length 640/480
     _scale = 1.0/math.tan(math.radians(fovy)/2.0)
     sx, sy = _scale / aspect, _scale
     zz = (far + near) / (near - far)
@@ -59,6 +61,8 @@ def perspective(fovy, aspect, near, far):
 
 def frustum(xmin, xmax, ymin, ymax, zmin, zmax):
     """ frustum projection matrix for OpenGL, from min and max coordinates"""
+    #xmin, ... => -1 / 1
+    # z => change un peu = 0.1 / 1000
     a = (xmax+xmin) / (xmax-xmin)
     b = (ymax+ymin) / (ymax-ymin)
     c = -(zmax+zmin) / (zmax-zmin)

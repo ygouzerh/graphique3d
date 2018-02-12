@@ -10,6 +10,8 @@ import OpenGL.GL as GL              # standard Python OpenGL wrapper
 import glfw                         # lean window system wrapper for OpenGL
 import numpy as np                  # all matrix manipulations & OpenGL args
 
+# Internal modules
+from transform import translate, rotate, scale, vec, frustum, perspective
 
 # ------------ low level OpenGL object wrappers ----------------------------
 class Shader:
@@ -57,12 +59,13 @@ class Shader:
 
 # ------------  Simple color shaders ------------------------------------------
 COLOR_VERT = """#version 330 core
+uniform mat4 matrix;
 layout(location = 0) in vec3 position;
 layout(location = 1) in vec3 colors;
 out vec4 pos;
 out vec3 color_binded;
 void main() {
-    gl_Position = vec4(position, 1);
+    gl_Position = matrix*vec4(position, 1);
     pos = gl_Position;
     color_binded=colors;
 }"""
@@ -108,12 +111,15 @@ class SimpleTriangle:
         GL.glBindVertexArray(0)
         GL.glBindBuffer(GL.GL_ARRAY_BUFFER, 0)
 
-    def draw(self, projection, view, model, color_shader, color):
+    def draw(self, projection, view, model, color_shader, color, scaler, rotater):
         GL.glUseProgram(color_shader.glid)
         my_color_location = GL.glGetUniformLocation(color_shader.glid, 'color')
         # hard coded color : (0.6, 0.6, 0.9)
         GL.glUniform3fv(my_color_location, 1, color)
 
+        matrix_location = GL.glGetUniformLocation(color_shader.glid, 'matrix')
+        perspective(35, 640/480, 0.001, 100)@translate(0,0,-1)@rotate(vec(0, 1, 0), rotater)@scale(scaler))
+        GL.glUniformMatrix4fv(matrix_location, 1, True,
         # draw triangle as GL_TRIANGLE vertex array, draw array call
         GL.glBindVertexArray(self.glid)
         GL.glDrawArrays(GL.GL_TRIANGLES, 0, 3)
@@ -160,6 +166,9 @@ class Viewer:
 
         self.color = (0, 0, 0)
 
+        self.scaler = 0.1
+        self.rotater = 2
+
     def run(self):
         """ Main render loop for this OpenGL window """
         while not glfw.window_should_close(self.win):
@@ -168,7 +177,8 @@ class Viewer:
 
             # draw our scene objects
             for drawable in self.drawables:
-                drawable.draw(None, None, None, self.color_shader, self.color)
+                drawable.draw(None, None, None, self.color_shader, self.color,
+                            self.scaler, self.rotater)
 
             # flush render commands, and swap draw buffers
             glfw.swap_buffers(self.win)
@@ -185,6 +195,13 @@ class Viewer:
         if action == glfw.PRESS or action == glfw.REPEAT:
             if key == glfw.KEY_ESCAPE or key == glfw.KEY_Q:
                 glfw.set_window_should_close(self.win, True)
+            elif key == glfw.KEY_R:
+                self.rotater += 2
+                print(self.rotater)
+            elif key == glfw.KEY_I:
+                self.scaler -= 0.05
+            elif key == glfw.KEY_O:
+                self.scaler += 0.05
             elif key == glfw.KEY_ENTER:
                 r, g, b = self.color
                 g += 0.1
