@@ -58,18 +58,22 @@ class Shader:
 # ------------  Simple color shaders ------------------------------------------
 COLOR_VERT = """#version 330 core
 layout(location = 0) in vec3 position;
+layout(location = 1) in vec3 colors;
 out vec4 pos;
+out vec3 color_binded;
 void main() {
     gl_Position = vec4(position, 1);
     pos = gl_Position;
+    color_binded=colors;
 }"""
 
 COLOR_FRAG = """#version 330 core
 uniform vec3 color;
 out vec4 outColor;
+in vec3 color_binded;
 in vec4 pos;
 void main() {
-    outColor = pos+vec4(color, 1);
+    outColor = vec4(color+color_binded, 1);
 }"""
 
 
@@ -81,16 +85,24 @@ class SimpleTriangle:
 
         # triangle position buffer
         position = np.array(((0, .5, 0), (.5, -.5, 0), (-.5, -.5, 0)), 'f')
+        color = np.array(((1, 0, 0), (0, 0, 1), (0, 1, 0)), 'f')
 
         self.glid = GL.glGenVertexArrays(1)  # create OpenGL vertex array id
         GL.glBindVertexArray(self.glid)      # activate to receive state below
-        self.buffers = [GL.glGenBuffers(1)]  # create buffer for position attrib
+        self.buffers = GL.glGenBuffers(2)  # create buffer for position attrib
 
         # bind the vbo, upload position data to GPU, declare its size and type
         GL.glEnableVertexAttribArray(0)      # assign to layout = 0 attribute
         GL.glBindBuffer(GL.GL_ARRAY_BUFFER, self.buffers[0])
         GL.glBufferData(GL.GL_ARRAY_BUFFER, position, GL.GL_STATIC_DRAW)
         GL.glVertexAttribPointer(0, 3, GL.GL_FLOAT, False, 0, None)
+
+        # Attention on ne peut pas les entrelacer car openGl est une machine
+        # à états
+        GL.glEnableVertexAttribArray(1)
+        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, self.buffers[1])
+        GL.glBufferData(GL.GL_ARRAY_BUFFER, color, GL.GL_STATIC_DRAW)
+        GL.glVertexAttribPointer(1, 3, GL.GL_FLOAT, False, 0, None)
 
         # cleanup and unbind so no accidental subsequent state update
         GL.glBindVertexArray(0)
