@@ -118,8 +118,8 @@ class SimpleTriangle:
         GL.glUniform3fv(my_color_location, 1, color)
 
         matrix_location = GL.glGetUniformLocation(color_shader.glid, 'matrix')
-        perspective(35, 640/480, 0.001, 100)@translate(0,0,-1)@rotate(vec(0, 1, 0), rotater)@scale(scaler))
         GL.glUniformMatrix4fv(matrix_location, 1, True,
+                                perspective(35, 640/480, 0.001, 100)@translate(0,0,-1)@rotate(vec(0, 1, 0), rotater)@scale(scaler))
         # draw triangle as GL_TRIANGLE vertex array, draw array call
         GL.glBindVertexArray(self.glid)
         GL.glDrawArrays(GL.GL_TRIANGLES, 0, 3)
