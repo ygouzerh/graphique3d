@@ -82,7 +82,8 @@ class SimpleTriangle:
 
     def __init__(self):
         # one time initialization
-        position = np.array(((0, 0), (1, 0), (0, 1), (1, 0), (1, 1), (0, 1), (1, 1), (1, 0), (2, 1)), np.float32)
+        self.position = np.array(((0, 0), (1, 0), (0, 1), (1, 0), (1, 1), (0, 1), (1, 1), (1, 0), (2, 1)), np.float32)
+        self.index = np.array((0, 2, 1, 2, 3, 1, 3, 2, 4), np.uint32)
 
         self.glid = GL.glGenVertexArrays(1)            # create a vertex array OpenGL identifier
         GL.glBindVertexArray(self.glid)                # make it active for receiving state below
@@ -90,13 +91,16 @@ class SimpleTriangle:
         self.buffers = [GL.glGenBuffers(1)]            # create one OpenGL buffer for our position attribute
         GL.glEnableVertexAttribArray(0)           # assign state below to shader attribute layout = 0
         GL.glBindBuffer(GL.GL_ARRAY_BUFFER, self.buffers[0])                    # our created position buffer
-        GL.glBufferData(GL.GL_ARRAY_BUFFER, position, GL.GL_STATIC_DRAW)   # upload our vertex data to it
+        GL.glBufferData(GL.GL_ARRAY_BUFFER, self.position, GL.GL_STATIC_DRAW)   # upload our vertex data to it
         GL.glVertexAttribPointer(0, 2, GL.GL_FLOAT, False, 0, None)        # describe array unit as 2 floats
-        ...                                       # optionally add attribute buffers here, same nb of vertices
+
+        self.buffers += [GL.glGenBuffers(1)]                                           # create GPU index buffer
+        GL.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, self.buffers[-1])                  # make it active to receive
+        GL.glBufferData(GL.GL_ELEMENT_ARRAY_BUFFER, self.index, GL.GL_STATIC_DRAW)     # our index array here
 
         # when drawing in the rendering loop: use glDrawArray for vertex arrays
         GL.glBindVertexArray(self.glid)                                         # activate our vertex array
-        GL.glDrawArrays(GL.GL_TRIANGLES, 0, position.shape[0])             # draw 9 vertices = 3 triangles
+        GL.glDrawElements(GL.GL_TRIANGLES, self.index.size, GL.GL_UNSIGNED_INT, None)  # 9 indexed verts = 3 triangles
 
     def draw(self, projection, view, model, color_shader, color, scaler, rotater):
         GL.glUseProgram(color_shader.glid)
@@ -108,9 +112,9 @@ class SimpleTriangle:
         GL.glUniformMatrix4fv(matrix_location, 1, True,
                                 perspective(35, 640/480, 0.001, 100)@translate(0,0,-1)@rotate(vec(0, 1, 0), rotater)@scale(scaler))
         # draw triangle as GL_TRIANGLE vertex array, draw array call
-        GL.glBindVertexArray(self.glid)
-        GL.glDrawArrays(GL.GL_TRIANGLES, 0, 3)
-        GL.glBindVertexArray(0)
+        #  when drawing in the rendering loop: use glDrawArray for vertex arrays
+        GL.glBindVertexArray(self.glid)                                         # activate our vertex array
+        GL.glDrawArrays(GL.GL_TRIANGLES, 0, self.position.shape[0])             # draw 9 vertices = 3 triangles
 
     def __del__(self):
         GL.glDeleteVertexArrays(1, [self.glid])
@@ -184,7 +188,6 @@ class Viewer:
                 glfw.set_window_should_close(self.win, True)
             elif key == glfw.KEY_R:
                 self.rotater += 2
-                print(self.rotater)
             elif key == glfw.KEY_I:
                 self.scaler -= 0.05
             elif key == glfw.KEY_O:
