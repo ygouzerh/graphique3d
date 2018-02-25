@@ -61,18 +61,22 @@ class Shader:
 COLOR_VERT = """#version 330 core
 uniform mat4 matrix;
 layout(location = 0) in vec3 position;
+layout(location = 1) in vec3 colors;
 out vec4 pos;
+out vec3 color_binded;
 void main() {
     gl_Position = matrix*vec4(position, 1);
     pos = gl_Position;
+    color_binded = colors;
 }"""
 
 COLOR_FRAG = """#version 330 core
 uniform vec3 color;
 out vec4 outColor;
 in vec4 pos;
+in vec3 color_binded;
 void main() {
-    outColor = vec4(color, 1);
+    outColor = vec4(color_binded, 1);
 }"""
 
 
@@ -83,7 +87,8 @@ class SimpleTriangle:
     def __init__(self):
         # one time initialization
         self.position = np.array(((0, 1, 0), (-0.5, 0, 0.5), (0.5, 0, 0.5), (-0.5, 0, -0.5), (0.5, 0, -0.5)), np.float32)
-        self.index = np.array((0, 1, 2, 0, 3, 1, 0, 2, 5), np.uint32)
+        self.index = np.array((0, 3, 1, 0, 1, 2, 0, 3, 1, 0, 3, 4), np.uint32)
+        color = np.array(((1, 0, 0), (0, 0, 1), (0, 1, 0)), 'f')
 
         self.glid = GL.glGenVertexArrays(1)            # create a vertex array OpenGL identifier
         GL.glBindVertexArray(self.glid)                # make it active for receiving state below
@@ -98,9 +103,13 @@ class SimpleTriangle:
         GL.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, self.buffers[-1])                  # make it active to receive
         GL.glBufferData(GL.GL_ELEMENT_ARRAY_BUFFER, self.index, GL.GL_STATIC_DRAW)     # our index array here
 
+        self.buffers += [GL.glGenBuffers(1)]                                           # create GPU index buffer
+        GL.glEnableVertexAttribArray(1)
+        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, self.buffers[-1])
+        GL.glBufferData(GL.GL_ARRAY_BUFFER, color, GL.GL_STATIC_DRAW)
+
         # when drawing in the rendering loop: use glDrawArray for vertex arrays
         GL.glBindVertexArray(self.glid)                                         # activate our vertex array
-        GL.glDrawArrays(GL.GL_TRIANGLES, 0, self.position.shape[0])             # draw 9 vertices = 3 triangles
         GL.glDrawElements(GL.GL_TRIANGLES, self.index.size, GL.GL_UNSIGNED_INT, None)  # 9 indexed verts = 3 triangles
 
     def draw(self, projection, view, model, color_shader, color, scaler, rotater):
@@ -113,7 +122,6 @@ class SimpleTriangle:
         GL.glUniformMatrix4fv(matrix_location, 1, True,
                                 perspective(35, 640/480, 0.001, 100)@translate(0,0,-1)@rotate(vec(0, 1, 0), rotater)@scale(scaler))
         GL.glBindVertexArray(self.glid)                                         # activate our vertex array
-        GL.glDrawArrays(GL.GL_TRIANGLES, 0, self.position.shape[0])             # draw 9 vertices = 3 triangles
         GL.glDrawElements(GL.GL_TRIANGLES, self.index.size, GL.GL_UNSIGNED_INT, None)  # 9 indexed verts = 3 triangles
 
     def __del__(self):
