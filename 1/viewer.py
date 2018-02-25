@@ -72,7 +72,7 @@ uniform vec3 color;
 out vec4 outColor;
 in vec4 pos;
 void main() {
-    outColor = pos+vec4(color, 1);
+    outColor = vec4(color, 1);
 }"""
 
 
@@ -82,8 +82,8 @@ class SimpleTriangle:
 
     def __init__(self):
         # one time initialization
-        self.position = np.array(((0, 0), (1, 0), (0, 1), (1, 0), (1, 1), (0, 1), (1, 1), (1, 0), (2, 1)), np.float32)
-        self.index = np.array((0, 2, 1, 2, 3, 1, 3, 2, 4), np.uint32)
+        self.position = np.array(((0, 1, 0), (-0.5, 0, 0.5), (0.5, 0, 0.5), (-0.5, 0, -0.5), (0.5, 0, -0.5)), np.float32)
+        self.index = np.array((0, 1, 2, 0, 3, 1, 0, 2, 5), np.uint32)
 
         self.glid = GL.glGenVertexArrays(1)            # create a vertex array OpenGL identifier
         GL.glBindVertexArray(self.glid)                # make it active for receiving state below
@@ -92,7 +92,7 @@ class SimpleTriangle:
         GL.glEnableVertexAttribArray(0)           # assign state below to shader attribute layout = 0
         GL.glBindBuffer(GL.GL_ARRAY_BUFFER, self.buffers[0])                    # our created position buffer
         GL.glBufferData(GL.GL_ARRAY_BUFFER, self.position, GL.GL_STATIC_DRAW)   # upload our vertex data to it
-        GL.glVertexAttribPointer(0, 2, GL.GL_FLOAT, False, 0, None)        # describe array unit as 2 floats
+        GL.glVertexAttribPointer(0, 3, GL.GL_FLOAT, False, 0, None)        # describe array unit as 2 floats
 
         self.buffers += [GL.glGenBuffers(1)]                                           # create GPU index buffer
         GL.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, self.buffers[-1])                  # make it active to receive
@@ -100,21 +100,21 @@ class SimpleTriangle:
 
         # when drawing in the rendering loop: use glDrawArray for vertex arrays
         GL.glBindVertexArray(self.glid)                                         # activate our vertex array
+        GL.glDrawArrays(GL.GL_TRIANGLES, 0, self.position.shape[0])             # draw 9 vertices = 3 triangles
         GL.glDrawElements(GL.GL_TRIANGLES, self.index.size, GL.GL_UNSIGNED_INT, None)  # 9 indexed verts = 3 triangles
 
     def draw(self, projection, view, model, color_shader, color, scaler, rotater):
         GL.glUseProgram(color_shader.glid)
         my_color_location = GL.glGetUniformLocation(color_shader.glid, 'color')
         # hard coded color : (0.6, 0.6, 0.9)
-        GL.glUniform3fv(my_color_location, 1, color)
+        GL.glUniform3fv(my_color_location, 1, (0.6, 0.6, 0.9))
 
         matrix_location = GL.glGetUniformLocation(color_shader.glid, 'matrix')
         GL.glUniformMatrix4fv(matrix_location, 1, True,
                                 perspective(35, 640/480, 0.001, 100)@translate(0,0,-1)@rotate(vec(0, 1, 0), rotater)@scale(scaler))
-        # draw triangle as GL_TRIANGLE vertex array, draw array call
-        #  when drawing in the rendering loop: use glDrawArray for vertex arrays
         GL.glBindVertexArray(self.glid)                                         # activate our vertex array
         GL.glDrawArrays(GL.GL_TRIANGLES, 0, self.position.shape[0])             # draw 9 vertices = 3 triangles
+        GL.glDrawElements(GL.GL_TRIANGLES, self.index.size, GL.GL_UNSIGNED_INT, None)  # 9 indexed verts = 3 triangles
 
     def __del__(self):
         GL.glDeleteVertexArrays(1, [self.glid])
@@ -149,6 +149,10 @@ class Viewer:
         # initialize GL by setting viewport and default render characteristics
         GL.glClearColor(0.1, 0.1, 0.1, 0.1)
 
+        GL.glEnable(GL.GL_CULL_FACE)
+        GL.glEnable(GL.GL_DEPTH_TEST)
+        GL.glDepthFunc(GL.GL_LESS)
+
         # compile and initialize shader programs once globally
         self.color_shader = Shader(COLOR_VERT, COLOR_FRAG)
 
@@ -164,7 +168,7 @@ class Viewer:
         """ Main render loop for this OpenGL window """
         while not glfw.window_should_close(self.win):
             # clear draw buffer
-            GL.glClear(GL.GL_COLOR_BUFFER_BIT)
+            GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
 
             # draw our scene objects
             for drawable in self.drawables:
