@@ -76,18 +76,18 @@ out vec4 outColor;
 in vec4 pos;
 in vec3 color_binded;
 void main() {
-    outColor = vec4(color_binded, 1);
+    outColor = pos+vec4(color_binded, 1);
 }"""
 
 
 # ------------  Scene object classes ------------------------------------------
-class SimpleTriangle:
-    """Hello triangle object"""
+class PyramideMultiColors:
+    """Pyramid wih multiple colors"""
 
     def __init__(self):
         # one time initialization
-        self.position = np.array(((0, 1, 0), (-0.5, 0, 0.5), (0.5, 0, 0.5), (-0.5, 0, -0.5), (0.5, 0, -0.5)), np.float32)
-        self.index = np.array((0, 3, 1, 0, 1, 2, 0, 3, 1, 0, 3, 4), np.uint32)
+        self.position = np.array(((0, 1, 0), (-0.5, 0, 0.5), (0.5, 0, 0.5), (0.5, 0, -0.5), (-0.5, 0, -0.5)), np.float32)
+        self.index = np.array((0, 1, 2, 0, 2, 3, 0, 3, 4, 0, 4, 1), np.uint32)
         color = np.array(((1, 0, 0), (0, 0, 1), (0, 1, 0)), 'f')
 
         self.glid = GL.glGenVertexArrays(1)            # create a vertex array OpenGL identifier
@@ -109,8 +109,9 @@ class SimpleTriangle:
         GL.glBufferData(GL.GL_ARRAY_BUFFER, color, GL.GL_STATIC_DRAW)
 
         # when drawing in the rendering loop: use glDrawArray for vertex arrays
-        GL.glBindVertexArray(self.glid)                                         # activate our vertex array
-        GL.glDrawElements(GL.GL_TRIANGLES, self.index.size, GL.GL_UNSIGNED_INT, None)  # 9 indexed verts = 3 triangles
+        # cleanup and unbind so no accidental subsequent state update
+        GL.glBindVertexArray(0)
+        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, 0)
 
     def draw(self, projection, view, model, color_shader, color, scaler, rotater):
         GL.glUseProgram(color_shader.glid)
@@ -215,7 +216,7 @@ def main():
     viewer = Viewer()
 
     # place instances of our basic objects
-    viewer.add(SimpleTriangle())
+    viewer.add(PyramideMultiColors())
 
     # start rendering loop
     viewer.run()
