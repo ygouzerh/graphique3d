@@ -60,23 +60,23 @@ class Shader:
 # ------------  Simple color shaders ------------------------------------------
 COLOR_VERT = """#version 330 core
 uniform mat4 matrix;
-layout(location = 0) in vec3 position;
-layout(location = 1) in vec3 colors;
-out vec4 pos;
-out vec3 color_binded;
+layout(location = 0) in vec3 position_in;
+layout(location = 1) in vec3 colors_in;
+out vec3 position_out;
+out vec3 colors_out;
 void main() {
-    gl_Position = matrix*vec4(position, 1);
-    pos = gl_Position;
-    color_binded = colors;
+    gl_Position = matrix*vec4(position_in, 1);
+    position_out = position_in;
+    colors_out = colors_in;
 }"""
 
 COLOR_FRAG = """#version 330 core
 uniform vec3 color;
 out vec4 outColor;
-in vec4 pos;
-in vec3 color_binded;
+in vec3 position_out;
+in vec3 colors_out;
 void main() {
-    outColor = pos+vec4(color_binded, 1);
+    outColor = vec4(colors_out, 1);
 }"""
 
 
@@ -88,7 +88,7 @@ class PyramideMultiColors:
         # one time initialization
         self.position = np.array(((0, 1, 0), (-0.5, 0, 0.5), (0.5, 0, 0.5), (0.5, 0, -0.5), (-0.5, 0, -0.5)), np.float32)
         self.index = np.array((0, 1, 2, 0, 2, 3, 0, 3, 4, 0, 4, 1), np.uint32)
-        color = np.array(((1, 0, 0), (0, 0, 1), (0, 1, 0)), 'f')
+        color = np.array(((1, 0, 0), (0, 0, 1), (0, 1, 0),(1, 1, 0), (0, 1, 1)), 'f')
 
         self.glid = GL.glGenVertexArrays(1)            # create a vertex array OpenGL identifier
         GL.glBindVertexArray(self.glid)                # make it active for receiving state below
@@ -107,6 +107,7 @@ class PyramideMultiColors:
         GL.glEnableVertexAttribArray(1)
         GL.glBindBuffer(GL.GL_ARRAY_BUFFER, self.buffers[-1])
         GL.glBufferData(GL.GL_ARRAY_BUFFER, color, GL.GL_STATIC_DRAW)
+        GL.glVertexAttribPointer(1, 3, GL.GL_FLOAT, False, 0, None)        # describe array unit as 2 floats
 
         # when drawing in the rendering loop: use glDrawArray for vertex arrays
         # cleanup and unbind so no accidental subsequent state update
