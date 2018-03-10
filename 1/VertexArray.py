@@ -13,9 +13,9 @@ class VertexArray:
         size = len(attributes)
         self.buffers = []
         if size > 1:
-            self.buffers = GL.genBuffer(size)
+            self.buffers = GL.glGenBuffers(size)
         elif size == 1:
-            self.buffers = [GL.genBuffer(1)]
+            self.buffers = [GL.glGenBuffers(1)]
         else:
             # TODO : Error, attributes doit etre nul
             print("Error")
@@ -36,12 +36,11 @@ class VertexArray:
             GL.glBufferData(GL.GL_ARRAY_BUFFER, index, GL.GL_STATIC_DRAW)
             GL.glVertexAttribPointer(1, 3, GL.GL_FLOAT, False, 0, None)        # describe array unit as 2 floats
 
-        gl.glBindVertexArray(0)
-        gl.glBindBuffer(GL.GL_ARRAY_BUFFER, 0)
+        GL.glBindVertexArray(0)
+        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, 0)
         GL.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, 0)
 
-    def draw(self, primitive=GL.GL_TRIANGLES):
-        GL.glUseProgram(color_shader.glid)
+    def draw(self, primitive=GL.GL_TRIANGLES):        
         GL.glBindVertexArray(self.glid)                                         # activate our vertex array
 
         if self.index :
