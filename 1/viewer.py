@@ -165,7 +165,7 @@ class PyramideUniform:
         self.buffers += [GL.glGenBuffers(1)]                                           # create GPU index buffer
         GL.glEnableVertexAttribArray(1)
         GL.glBindBuffer(GL.GL_ARRAY_BUFFER, self.buffers[-1])
-        GL.glBufferData(GL.GL_ARRAY_BUFFER, color, GL.GL_STATIC_DRAW)
+        GL.glBufferData(GL.GL_ARRAY_BUFFER, data, GL.GL_STATIC_DRAW)
         GL.glVertexAttribPointer(1, 3, GL.GL_FLOAT, False, 0, None)        # describe array unit as 2 floats
 
         # when drawing in the rendering loop: use glDrawArray for vertex arrays
