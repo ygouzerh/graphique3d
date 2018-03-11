@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
+#!/usr/bin/env python3
 """
-VertexArray Wrapper
+Low Level OpenGL Wrapper for VertexArray
 """
 
 import OpenGL.GL as GL              # standard Python OpenGL wrapper
@@ -14,7 +15,7 @@ class VertexArray:
         self.glid = GL.glGenVertexArrays(1)            # create a vertex array OpenGL identifier
         GL.glBindVertexArray(self.glid)                # make it active for receiving state below
         self.buffers = []
-        
+
         for number, data in enumerate(attributes):
             self.buffers += [GL.glGenBuffers(1)]            # create one OpenGL buffer for our position attribute
             GL.glEnableVertexAttribArray(number)           # assign state below to shader attribute layout = 0
