@@ -5,11 +5,11 @@ General viewer
 import glfw                         # lean window system wrapper for OpenGL
 import OpenGL.GL as GL              # standard Python OpenGL wrapper
 from itertools import cycle
-from shader import Shader
-from shaders_glsl import COLOR_VERT, COLOR_FRAG_MULTIPLE, COLOR_FRAG_UNIFORM
+from opengl_tools.shader import Shader
+from opengl_tools.shaders_glsl import COLOR_VERT, COLOR_FRAG_MULTIPLE, COLOR_FRAG_UNIFORM
 # Internal modules
 from transform import Trackball, translate, rotate, scale, vec, frustum, perspective, identity
-from pyramids import PyramidColored
+from opengl_tools.pyramids import PyramidColored
 
 class Viewer:
     """ GLFW viewer window, with classic initialization & graphics loop """

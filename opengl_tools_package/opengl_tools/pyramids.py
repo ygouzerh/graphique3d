@@ -4,7 +4,7 @@ Pyramid as scene object
 """
 import OpenGL.GL as GL              # standard Python OpenGL wrapper
 import numpy as np                  # all matrix manipulations & OpenGL args
-from color_mesh import ColorMesh
+from opengl_tools.color_mesh import ColorMesh
 
 class Pyramid(ColorMesh):
 

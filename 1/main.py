@@ -7,10 +7,10 @@ import os                           # os function, i.e. checking file status
 
 # External, non built-in modules
 import glfw                         # lean window system wrapper for OpenGL
-from pyramids import PyramidColored
-from viewer import Viewer
-from shader import Shader
-from shaders_glsl import COLOR_VERT, COLOR_FRAG_MULTIPLE, COLOR_FRAG_UNIFORM
+from opengl_tools.pyramids import PyramidColored
+from opengl_tools.viewer import Viewer
+from opengl_tools.shader import Shader
+from opengl_tools.shaders_glsl import COLOR_VERT, COLOR_FRAG_MULTIPLE, COLOR_FRAG_UNIFORM
 
 class ViewerPyramid(Viewer):
     """ Viewer for the pyramids project """

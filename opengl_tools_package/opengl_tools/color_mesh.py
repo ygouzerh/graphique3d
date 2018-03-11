@@ -3,7 +3,7 @@
 ColorMesh, high level object for an object
 """
 
-from vertex_array import VertexArray
+from opengl_tools.vertex_array import VertexArray
 import OpenGL.GL as GL              # standard Python OpenGL wrapper
 
 class ColorMesh:
