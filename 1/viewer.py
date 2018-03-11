@@ -9,12 +9,12 @@ from shader import Shader
 from shaders_glsl import COLOR_VERT, COLOR_FRAG_MULTIPLE, COLOR_FRAG_UNIFORM
 # Internal modules
 from transform import Trackball, translate, rotate, scale, vec, frustum, perspective, identity
-from pyramids import PyramidMultiColors, PyramidColored
+from pyramids import PyramidColored
 
 class Viewer:
     """ GLFW viewer window, with classic initialization & graphics loop """
 
-    def __init__(self, width=640, height=480):
+    def __init__(self, shaders, width=640, height=480):
 
         # version hints: create GL window with >= OpenGL 3.3 and core profile
         glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 3)
@@ -42,9 +42,8 @@ class Viewer:
         GL.glEnable(GL.GL_DEPTH_TEST)
         GL.glDepthFunc(GL.GL_LESS)
 
-        # compile and initialize shader programs once globally
-        self.multiple_color_shader = Shader(COLOR_VERT, COLOR_FRAG_MULTIPLE)
-        self.uniform_color_shader = Shader(COLOR_VERT, COLOR_FRAG_UNIFORM)
+        # An hashmap of "name" => Shader()
+        self.shaders = shaders
 
         # initially empty list of object to draw
         self.drawables = []
@@ -58,7 +57,10 @@ class Viewer:
         self.color = (0, 0, 0)
 
         self.scaler = 0.1
+
         self.rotater = 2
+
+        self.winsize = glfw.get_window_size(self.win)
 
     def run(self):
         """ Main render loop for this OpenGL window """
@@ -75,16 +77,18 @@ class Viewer:
 
             # draw our scene objects
             for drawable in self.drawables:
-                if(type(drawable) is PyramidMultiColors):
-                    drawable.draw(projection, view, model, self.multiple_color_shader)
-                else :
-                    drawable.draw(projection, view, model, self.multiple_color_shader)
+                self.do_for_each_drawable(drawable, view, projection, model)
 
             # flush render commands, and swap draw buffers
             glfw.swap_buffers(self.win)
 
             # Poll for and process events
             glfw.poll_events()
+
+    def do_for_each_drawable(self, drawable, view, projection, model):
+        """ What to do for each drawable """
+        pass
+
 
     def add(self, *drawables):
         """ add objects to draw in this window """

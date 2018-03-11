@@ -7,13 +7,28 @@ import os                           # os function, i.e. checking file status
 
 # External, non built-in modules
 import glfw                         # lean window system wrapper for OpenGL
-from pyramids import PyramidMultiColors, PyramidColored
+from pyramids import PyramidColored
 from viewer import Viewer
+from shader import Shader
+from shaders_glsl import COLOR_VERT, COLOR_FRAG_MULTIPLE, COLOR_FRAG_UNIFORM
+
+class ViewerPyramid(Viewer):
+    """ Viewer for the pyramids project """
+    def __init__(self, width=640, height=480):
+        super().__init__(None)
+        self.multiple_color_shader = Shader(COLOR_VERT, COLOR_FRAG_MULTIPLE)
+        self.uniform_color_shader = Shader(COLOR_VERT, COLOR_FRAG_UNIFORM)
+
+    def do_for_each_drawable(self, drawable, view, projection, model):
+        if(type(drawable) is PyramidColored):
+            drawable.draw(projection, view, model, self.multiple_color_shader)
+        else :
+            drawable.draw(projection, view, model, self.uniform_color_shader)
 
 # -------------- main program and scene setup --------------------------------
 def main():
     """ create a window, add scene objects, then run rendering loop """
-    viewer = Viewer()
+    viewer = ViewerPyramid()
 
     # place instances of our basic objects
     # viewer.add(PyramideMultiColors())
