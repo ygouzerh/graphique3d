@@ -150,18 +150,18 @@ class PyramideUniform:
         self.index = np.array((0, 1, 2, 0, 2, 3, 0, 3, 4, 0, 4, 1), np.uint32)
         self.color = np.array(((1, 0, 0), (0, 0, 1), (0, 1, 0),(1, 1, 0), (0, 1, 1)), 'f')
 
-        self.vertex_array = VertexArray([self.position, self.index, self.color])
+        self.vertex_array = VertexArray([self.position, self.color], self.index)
 
     def draw(self, projection, view, model, color_shader, color, scaler, rotater):
         GL.glUseProgram(color_shader.glid)
-        self.vertex_array.draw()
         my_color_location = GL.glGetUniformLocation(color_shader.glid, 'color')
         # hard coded color : (0.6, 0.6, 0.9)
         GL.glUniform3fv(my_color_location, 1, (0.6, 0.6, 0.9))
 
         matrix_location = GL.glGetUniformLocation(color_shader.glid, 'matrix')
         GL.glUniformMatrix4fv(matrix_location, 1, True,
-                                perspective(35, 640/480, 0.001, 100)@translate(0.2,0,-1)@rotate(vec(0, 1, 0), -rotater)@scale(scaler))
+                                perspective(35, 640/480, 0.001, 100)@translate(0.2, 0,-1)@rotate(vec(0, 1, 0), rotater)@scale(scaler))
+        self.vertex_array.draw()
 
     def __del__(self):
         del(self.vertex_array)

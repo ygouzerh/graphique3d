@@ -4,46 +4,38 @@ VertexArray Wrapper
 """
 
 import OpenGL.GL as GL              # standard Python OpenGL wrapper
+import numpy as np
 from transform import translate, rotate, scale, vec, frustum, perspective
 
 class VertexArray:
     def __init__(self, attributes, index=None):
 
         self.index = index
-        size = len(attributes)
+        self.glid = GL.glGenVertexArrays(1)            # create a vertex array OpenGL identifier
+        GL.glBindVertexArray(self.glid)                # make it active for receiving state below
         self.buffers = []
-        if size > 1:
-            self.buffers = GL.glGenBuffers(size)
-        elif size == 1:
-            self.buffers = [GL.glGenBuffers(1)]
-        else:
-            # TODO : Error, attributes doit etre nul
-            print("Error")
-
-        self.glid = GL.glGenVertexArrays(1)
-        GL.glBindVertexArray(self.glid)
-
+        
         for number, data in enumerate(attributes):
-            GL.glEnableVertexAttribArray(number)
-            GL.glBindBuffer(GL.GL_ARRAY_BUFFER, self.buffers[number])
-            GL.glBufferData(GL.GL_ARRAY_BUFFER, data, GL.GL_STATIC_DRAW)
-            GL.glVertexAttribPointer(number, 3, GL.GL_FLOAT, False, 0, None)
+            self.buffers += [GL.glGenBuffers(1)]            # create one OpenGL buffer for our position attribute
+            GL.glEnableVertexAttribArray(number)           # assign state below to shader attribute layout = 0
+            GL.glBindBuffer(GL.GL_ARRAY_BUFFER, self.buffers[number])                    # our created position buffer
+            GL.glBufferData(GL.GL_ARRAY_BUFFER, data, GL.GL_STATIC_DRAW)   # upload our vertex data to it
+            GL.glVertexAttribPointer(number, 3, GL.GL_FLOAT, False, 0, None)        # describe array unit as 2 floats
 
         if index is not None:
-            self.buffers += [GL.glGenBuffers(1)]
-            GL.glEnableVertexAttribArray(1)
-            GL.glBindBuffer(GL.GL_ARRAY_BUFFER, self.buffers[-1])
-            GL.glBufferData(GL.GL_ARRAY_BUFFER, index, GL.GL_STATIC_DRAW)
-            GL.glVertexAttribPointer(1, 3, GL.GL_FLOAT, False, 0, None)        # describe array unit as 2 floats
+            self.buffers += [GL.glGenBuffers(1)]                                           # create GPU index buffer
+            GL.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, self.buffers[-1])                  # make it active to receive
+            GL.glBufferData(GL.GL_ELEMENT_ARRAY_BUFFER, self.index, GL.GL_STATIC_DRAW)     # our index array here
 
+        # when drawing in the rendering loop: use glDrawArray for vertex arrays
+        # cleanup and unbind so no accidental subsequent state update
         GL.glBindVertexArray(0)
         GL.glBindBuffer(GL.GL_ARRAY_BUFFER, 0)
-        GL.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, 0)
 
-    def draw(self, primitive=GL.GL_TRIANGLES):        
+    def draw(self, primitive=GL.GL_TRIANGLES):
         GL.glBindVertexArray(self.glid)                                         # activate our vertex array
 
-        if self.index :
+        if self.index is not None:
             GL.glDrawElements(primitive, self.index.size, GL.GL_UNSIGNED_INT, None)  # 9 indexed verts = 3 triangles
         else :
             GL.glDrawArrays(primitive, 0, 3)
