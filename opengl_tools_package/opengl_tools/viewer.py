@@ -85,7 +85,7 @@ class Viewer:
             # Poll for and process events
             glfw.poll_events()
 
-    def do_for_each_drawable(self, drawable, view, projection, model):
+    def do_for_each_drawable(self, drawable, view, projection, model, **param):
         """ What to do for each drawable """
         pass
 

@@ -12,7 +12,7 @@ from opengl_tools.viewer import Viewer
 from opengl_tools.shader import Shader
 from opengl_tools.shaders_glsl import COLOR_VERT, COLOR_FRAG_MULTIPLE, COLOR_FRAG_UNIFORM
 from opengl_tools.loader import load
-from opengl_tools.transform import identity
+from opengl_tools.transform import identity, translate
 
 class Node:
     """ Scene graph transform and parameter broadcast node """
@@ -24,13 +24,19 @@ class Node:
         """ Add drawables to this node, simply updating children list """
         self.children.extend(drawables)
 
-    def draw(self, projection, view, model, **param):
+    def draw(self, projection, view, model, color_shader, **param):
         """ Recursive draw, passing down named parameters & model matrix. """
         # merge named parameters given at initialization with those given here
         param = dict(param, **self.param)
-        # model =
+        model = self.transform @ model
         for child in self.children:
-            child.draw(projection, view, model, **param)
+            child.draw(projection, view, model, color_shader, **param)
+
+class Cylinder(Node):
+    """ Very simple cylinder based on practical 2 load function """
+    def __init__(self):
+        super().__init__()
+        self.add(*load('cylinder.obj'))  # just load the cylinder from file
 
 class ViewerRoboticArm(Viewer):
     """ Viewer for the robotic arm project """
@@ -38,16 +44,17 @@ class ViewerRoboticArm(Viewer):
         super().__init__(None)
         self.multiple_color_shader = Shader(COLOR_VERT, COLOR_FRAG_MULTIPLE)
 
-    def do_for_each_drawable(self, drawable, view, projection, model):
-        drawable.draw(projection, view, model, self.multiple_color_shader)
+    def do_for_each_drawable(self, drawable, view, projection, model, **param):
+        drawable.draw(projection, view, model, self.multiple_color_shader, **param)
 
 # -------------- main program and scene setup --------------------------------
 def main():
     """ create a window, add scene objects, then run rendering loop """
-    viewer = ViewerRoboticArm()
 
-    # place instances of our basic objects
-    viewer.add(load("suzanne.obj")[0])
+    viewer = ViewerRoboticArm()
+    cylinder_node = Node(name='my_cylinder', transform=translate(-1, 0, 0), color=(1, 0, 0.5, 1))
+    cylinder_node.add(Cylinder())
+    viewer.add(cylinder_node)
 
     # start rendering loop
     viewer.run()
