@@ -16,17 +16,19 @@ class ColorMesh:
 
         self.vertex_array = VertexArray(self.attributes, self.index)
 
-    def draw(self, projection, view, model, color_shader):
+    def draw(self, projection, view, model, color_shader, color=(1, 1, 1, 1), **param):
 
         GL.glUseProgram(color_shader.glid)
 
         projection_location = GL.glGetUniformLocation(color_shader.glid, 'projection')
         view_location = GL.glGetUniformLocation(color_shader.glid, 'view')
         model_location = GL.glGetUniformLocation(color_shader.glid, 'model')
+        color_location = GL.glGetUniformLocation(color_shader.glid, 'color')
 
         GL.glUniformMatrix4fv(projection_location, 1, True, projection)
         GL.glUniformMatrix4fv(view_location, 1, True, view)
         GL.glUniformMatrix4fv(model_location, 1, True, model)
+        GL.glUniform3fv(color_location, 1, color)
 
         self.vertex_array.draw()
 

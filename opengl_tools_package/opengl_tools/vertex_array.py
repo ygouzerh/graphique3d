@@ -6,7 +6,7 @@ Low Level OpenGL Wrapper for VertexArray
 
 import OpenGL.GL as GL              # standard Python OpenGL wrapper
 import numpy as np
-from transform import translate, rotate, scale, vec, frustum, perspective
+from opengl_tools.transform import translate, rotate, scale, vec, frustum, perspective
 
 class VertexArray:
     def __init__(self, attributes, index=None):

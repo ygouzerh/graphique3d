@@ -8,7 +8,7 @@ from itertools import cycle
 from opengl_tools.shader import Shader
 from opengl_tools.shaders_glsl import COLOR_VERT, COLOR_FRAG_MULTIPLE, COLOR_FRAG_UNIFORM
 # Internal modules
-from transform import Trackball, translate, rotate, scale, vec, frustum, perspective, identity
+from opengl_tools.transform import Trackball, translate, rotate, scale, vec, frustum, perspective, identity
 from opengl_tools.pyramids import PyramidColored
 
 class Viewer:
