@@ -4,14 +4,17 @@ Python OpenGL practical application.
 """
 # Python built-in modules
 import os                           # os function, i.e. checking file status
+import sys
+
+sys.path.append("../opengl_tools_package/opengl_tools")
 
 # External, non built-in modules
 import glfw                         # lean window system wrapper for OpenGL
-from opengl_tools.pyramids import PyramidColored
-from opengl_tools.viewer import Viewer
-from opengl_tools.shader import Shader
-from opengl_tools.shaders_glsl import COLOR_VERT, COLOR_FRAG_MULTIPLE, COLOR_FRAG_UNIFORM
-from opengl_tools.loader import load
+from pyramids import PyramidColored
+from viewer import Viewer
+from shader import Shader
+from shaders_glsl import COLOR_VERT, COLOR_FRAG_MULTIPLE, COLOR_FRAG_UNIFORM
+from loader import load
 
 class ViewerPyramid(Viewer):
     """ Viewer for the pyramids project """
@@ -35,6 +38,7 @@ def main():
     # viewer.add(PyramideMultiColors())
             # one time initialization
     viewer.add(PyramidColored())
+    # Charge cette suzanne
     viewer.add(load("suzanne.obj")[0])
 
     # start rendering loop
