@@ -14,3 +14,8 @@ to stat direct (3 fingers rules)
 * Add the matrix perspective at the left of matrix multiplications
 * perspective(35, 640/480, 0.001, 100) : degree of view, length/width, small number, big number,
   the interval where objects which are here need to printed
+
+## Astuce
+
+tools/helper.py is intended to replace the helper.py of pyassimp
+(/usr/local/lib/python3.6/site-packages/pyassimp/helper.py)
