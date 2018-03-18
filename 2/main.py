@@ -12,7 +12,7 @@ from opengl_tools.viewer import Viewer
 from opengl_tools.shader import Shader
 from opengl_tools.shaders_glsl import COLOR_VERT, COLOR_FRAG_MULTIPLE, COLOR_FRAG_UNIFORM
 from opengl_tools.loader import load
-from opengl_tools.transform import identity, translate
+from opengl_tools.transform import identity, translate, rotate, scale
 
 class Node:
     """ Scene graph transform and parameter broadcast node """
@@ -30,6 +30,7 @@ class Node:
         param = dict(param, **self.param)
         model = self.transform @ model
         for child in self.children:
+            print("{} appel {}".format(self.name, child))
             child.draw(projection, view, model, color_shader, **param)
 
 class Cylinder(Node):
@@ -45,6 +46,7 @@ class ViewerRoboticArm(Viewer):
         self.multiple_color_shader = Shader(COLOR_VERT, COLOR_FRAG_MULTIPLE)
 
     def do_for_each_drawable(self, drawable, view, projection, model, **param):
+        print("ROOT")
         drawable.draw(projection, view, model, self.multiple_color_shader, **param)
 
 # -------------- main program and scene setup --------------------------------
@@ -52,13 +54,22 @@ def main():
     """ create a window, add scene objects, then run rendering loop """
 
     viewer = ViewerRoboticArm()
-    cylinder_node = Node(name='my_cylinder', transform=translate(-1, 0, 0), color=(1, 0, 0.5, 1))
-    cylinder_node.add(Cylinder())
-    viewer.add(cylinder_node)
-
-    # start rendering loop
+        # construct our robot arm hierarchy for drawing in viewer
+    cylinder = Cylinder()             # re-use same cylinder instance
+    limb_shape = Node(transform=scale(x=0.1, z=0.2))  # make a thin cylinder
+    limb_shape.add(cylinder)
+    viewer.add(limb_shape)
+    # limb_shape.add(cylinder)          # common shape of arm and forearm
+    #
+    # arm_node = Node(transform=...)    # robot arm rotation with phi angle
+    # arm_node.add(limb_shape)
+    #
+    # # make a flat cylinder
+    # base_shape = Node(transform=..., children=[cylinder])
+    # base_node = Node(transform=...)   # robot base rotation with theta angle
+    # base_node.add(base_shape, arm_node)
+    # viewer.add(base_node)
     viewer.run()
-
 
 if __name__ == '__main__':
     glfw.init()                # initialize window system glfw
