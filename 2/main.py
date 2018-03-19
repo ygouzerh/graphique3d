@@ -45,7 +45,7 @@ class ViewerRoboticArm(Viewer):
         self.multiple_color_shader = Shader(COLOR_VERT, COLOR_FRAG_MULTIPLE)
 
     def do_for_each_drawable(self, drawable, view, projection, model, **param):
-        drawable.draw(projection, view, model, self.multiple_color_shader, **param)
+        drawable.draw(projection, view, model, self.multiple_color_shader, win=self.win, **param)
 
 class RotationControlNode(Node):
     def __init__(self, key_up, key_down, axis, angle=0, **param):
@@ -59,7 +59,6 @@ class RotationControlNode(Node):
         self.angle -= 2 * int(glfw.get_key(win, self.key_down) == glfw.PRESS)
         self.transform = rotate(axis=self.axis, angle=self.angle)
 
-        # TODO : modify win in othe signatures
         # call Node's draw method to pursue the hierarchical tree calling
         super().draw(projection, view, model, color_shader, win=win, **param)
 # -------------- main program and scene setup --------------------------------
