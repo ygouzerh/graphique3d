@@ -7,18 +7,32 @@ import os                           # os function, i.e. checking file status
 
 # External, non built-in modules
 import glfw                         # lean window system wrapper for OpenGL
+import numpy as np
+import OpenGL.GL as GL              # standard Python OpenGL wrapper
 from opengl_tools.pyramids import PyramidColored
 from opengl_tools.viewer import Viewer
 from opengl_tools.shader import Shader
 from opengl_tools.shaders_glsl import COLOR_VERT, COLOR_FRAG_MULTIPLE, COLOR_FRAG_UNIFORM
 from opengl_tools.loader import load
 from opengl_tools.transform import identity, translate, rotate, scale, vec
+from opengl_tools.color_mesh import ColorMesh
+
+class Axis(ColorMesh):
+
+    def __init__(self):
+        self.position = np.array(((0, 0, 0), (1, 0, 0), (0, 1, 0), (0, 0, 1)), np.float32)
+        self.index = np.array((0, 1, 0, 2, 0, 3), np.uint32)
+        # See how to pass the good color
+        self.color = np.array(((0, 0, 1), (0, 0, 1)), 'f')
+        super().__init__([self.position, self.color], index=self.index, primitive=GL.GL_LINES)
 
 class Node:
     """ Scene graph transform and parameter broadcast node """
     def __init__(self, name='', children=(), transform=identity(), **param):
         self.transform, self.param, self.name = transform, param, name
         self.children = list(iter(children))
+        # For each node, we will have his axis
+        self.add(Axis())
 
     def add(self, *drawables):
         """ Add drawables to this node, simply updating children list """
@@ -80,16 +94,6 @@ def main():
 
     base_node.add(arm_node)
     viewer.add(base_node)
-    # limb_shape.add(cylinder)          # common shape of arm and forearm
-    #
-    # arm_node = Node(transform=...)    # robot arm rotation with phi angle
-    # arm_node.add(limb_shape)
-    #
-    # # make a flat cylinder
-    # base_shape = Node(transform=..., children=[cylinder])
-    # base_node = Node(transform=...)   # robot base rotation with theta angle
-    # base_node.add(base_shape, arm_node)
-    # viewer.add(base_node)
     viewer.run()
 
 if __name__ == '__main__':

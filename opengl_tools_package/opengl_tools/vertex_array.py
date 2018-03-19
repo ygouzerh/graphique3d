@@ -9,7 +9,7 @@ import numpy as np
 from opengl_tools.transform import translate, rotate, scale, vec, frustum, perspective
 
 class VertexArray:
-    def __init__(self, attributes, index=None):
+    def __init__(self, attributes, index=None, usage=GL.GL_STATIC_DRAW):
 
         self.index = index
         self.glid = GL.glGenVertexArrays(1)            # create a vertex array OpenGL identifier
@@ -20,13 +20,13 @@ class VertexArray:
             self.buffers += [GL.glGenBuffers(1)]            # create one OpenGL buffer for our position attribute
             GL.glEnableVertexAttribArray(number)           # assign state below to shader attribute layout = 0
             GL.glBindBuffer(GL.GL_ARRAY_BUFFER, self.buffers[number])                    # our created position buffer
-            GL.glBufferData(GL.GL_ARRAY_BUFFER, data, GL.GL_STATIC_DRAW)   # upload our vertex data to it
+            GL.glBufferData(GL.GL_ARRAY_BUFFER, data, usage)   # upload our vertex data to it
             GL.glVertexAttribPointer(number, 3, GL.GL_FLOAT, False, 0, None)        # describe array unit as 2 floats
 
         if index is not None:
             self.buffers += [GL.glGenBuffers(1)]                                           # create GPU index buffer
             GL.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, self.buffers[-1])                  # make it active to receive
-            GL.glBufferData(GL.GL_ELEMENT_ARRAY_BUFFER, self.index, GL.GL_STATIC_DRAW)     # our index array here
+            GL.glBufferData(GL.GL_ELEMENT_ARRAY_BUFFER, self.index, usage)     # our index array here
 
         # when drawing in the rendering loop: use glDrawArray for vertex arrays
         # cleanup and unbind so no accidental subsequent state update

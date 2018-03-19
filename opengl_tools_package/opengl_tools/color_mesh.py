@@ -9,12 +9,13 @@ import OpenGL.GL as GL              # standard Python OpenGL wrapper
 class ColorMesh:
     """ ColorMesh, high level object for an object """
 
-    def __init__(self, attributes, index=None):
+    def __init__(self, attributes, index=None, primitive=GL.GL_TRIANGLES, usage=GL.GL_STATIC_DRAW):
 
         self.attributes = attributes
         self.index = index
-
-        self.vertex_array = VertexArray(self.attributes, self.index)
+        self.primitive=primitive
+        self.usage = usage
+        self.vertex_array = VertexArray(self.attributes, self.index, self.usage)
 
     def draw(self, projection, view, model, color_shader, color=(1, 1, 1, 1), **param):
 
@@ -30,7 +31,7 @@ class ColorMesh:
         GL.glUniformMatrix4fv(model_location, 1, True, model)
         GL.glUniform3fv(color_location, 1, color)
 
-        self.vertex_array.draw()
+        self.vertex_array.draw(self.primitive)
 
     def updateVertexArray(self):
         self.vertex_array = VertexArray(self.attributes, self.index)

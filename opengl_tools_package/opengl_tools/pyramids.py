@@ -15,7 +15,7 @@ class Pyramid(ColorMesh):
             self.position = position
 
         if index is None:
-            self.index = index = np.array((0, 1, 2, 0, 2, 3, 0, 3, 4, 0, 4, 1), np.uint32)
+            self.index = np.array((0, 1, 2, 0, 2, 3, 0, 3, 4, 0, 4, 1), np.uint32)
         else:
             self.index = index
 
