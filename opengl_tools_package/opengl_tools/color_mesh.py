@@ -18,7 +18,9 @@ class ColorMesh:
         self.vertex_array = VertexArray(self.attributes, self.index, self.usage)
 
     def draw(self, projection, view, model, color_shader, color=(1, 1, 1, 1), **param):
-
+        """
+            Draw the vertex and pass differents parameters to the shader
+        """
         GL.glUseProgram(color_shader.glid)
 
         projection_location = GL.glGetUniformLocation(color_shader.glid, 'projection')
@@ -31,6 +33,13 @@ class ColorMesh:
         GL.glUniformMatrix4fv(model_location, 1, True, model)
         GL.glUniform3fv(color_location, 1, color)
 
+        # TODO : verify
+        # Add the other parameters
+        for key, value in param.items():
+            location = GL.glGetUniformLocation(color_shader.glid, key)
+            GL.glUniformMatrix4fv(location, 1, True, value)
+
+        # Call the shader
         self.vertex_array.draw(self.primitive)
 
     def updateVertexArray(self):

@@ -16,35 +16,7 @@ from opengl_tools.shaders_glsl import COLOR_VERT, COLOR_FRAG_MULTIPLE, COLOR_FRA
 from opengl_tools.loader import load
 from opengl_tools.transform import identity, translate, rotate, scale, vec
 from opengl_tools.color_mesh import ColorMesh
-
-class Axis(ColorMesh):
-
-    def __init__(self):
-        self.position = np.array(((0, 0, 0), (1, 0, 0), (0, 1, 0), (0, 0, 1)), np.float32)
-        self.index = np.array((0, 1, 0, 2, 0, 3), np.uint32)
-        # See how to pass the good color
-        self.color = np.array(((0, 0, 1), (0, 0, 1)), 'f')
-        super().__init__([self.position, self.color], index=self.index, primitive=GL.GL_LINES)
-
-class Node:
-    """ Scene graph transform and parameter broadcast node """
-    def __init__(self, name='', children=(), transform=identity(), **param):
-        self.transform, self.param, self.name = transform, param, name
-        self.children = list(iter(children))
-        # For each node, we will have his axis
-        self.add(Axis())
-
-    def add(self, *drawables):
-        """ Add drawables to this node, simply updating children list """
-        self.children.extend(drawables)
-
-    def draw(self, projection, view, model, color_shader, **param):
-        """ Recursive draw, passing down named parameters & model matrix. """
-        # merge named parameters given at initialization with those given here
-        param = dict(param, **self.param)
-        model = model @ self.transform
-        for child in self.children:
-            child.draw(projection, view, model, color_shader, **param)
+from opengl_tools.node import Node, RotationControlNode
 
 class Cylinder(Node):
     """ Very simple cylinder based on practical 2 load function """
@@ -61,20 +33,6 @@ class ViewerRoboticArm(Viewer):
     def do_for_each_drawable(self, drawable, view, projection, model, **param):
         drawable.draw(projection, view, model, self.multiple_color_shader, win=self.win, **param)
 
-class RotationControlNode(Node):
-    def __init__(self, key_up, key_down, axis, angle=0, **param):
-        super().__init__(**param)   # forward base constructor named arguments
-        self.angle, self.axis = angle, axis
-        self.key_up, self.key_down = key_up, key_down
-
-    def draw(self, projection, view, model, color_shader, win=None, **param):
-        assert win is not None
-        self.angle += 2 * int(glfw.get_key(win, self.key_up) == glfw.PRESS)
-        self.angle -= 2 * int(glfw.get_key(win, self.key_down) == glfw.PRESS)
-        self.transform = rotate(axis=self.axis, angle=self.angle)
-
-        # call Node's draw method to pursue the hierarchical tree calling
-        super().draw(projection, view, model, color_shader, win=win, **param)
 # -------------- main program and scene setup --------------------------------
 def main():
     """ create a window, add scene objects, then run rendering loop """
