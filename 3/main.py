@@ -67,6 +67,7 @@ class Suzanne(Node):
         self.color_mesh = objects[0]
         # Add the light
         self.light = light_vector
+        self.color_mesh.addUniform({"light" :light_vector})
         self.color_mesh.addAttribut(self.light)
         print(self.color_mesh)
         self.add(self.color_mesh)

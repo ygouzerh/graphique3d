@@ -75,7 +75,8 @@ class ColorMesh:
 
     def addUniform(self, uniform):
         """ Add a tuple of uniforms variables """
-        self.uniforms.add(uniform)
+        for key, value in uniform.items():
+            self.uniforms[key] = value
 
     def __str__(self):
         start = "ColorMesh("
