@@ -68,5 +68,17 @@ class ColorMesh:
         else:
             raise ValueError("Attribut parameter need to be different from None")
 
+    def __str__(self):
+        start = "ColorMesh("
+        attributes = "Attributes : \n"
+        for index, value in enumerate(self.attributes):
+            attributes += "\nattribut {}: \n {}".format(index, value)
+        usage = "usage : {} ".format(self.usage)
+        primitive = "primitive : {}".format(self.primitive)
+        end = ")\n"
+        object_str = "{} {}\n{} , {} {}".format(start, attributes,
+                                                usage, primitive, end)
+        return object_str
+
     def __del__(self):
         del(self.vertex_array)
