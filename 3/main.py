@@ -23,21 +23,21 @@ uniform mat4 projection;
 uniform mat4 view;
 uniform mat4 model;
 uniform vec3 color;
+uniform vec3 light;
 
 layout(location = 0) in vec3 position_in;
 layout(location = 1) in vec3 normals_in;
-layout(location = 2) in vec3 light_in;
 
 out vec3 position_out;
 out vec3 colors_out;
 out vec3 normals;
-out vec3 light;
+out vec3 light_out;
 void main() {
     gl_Position = projection * view * model * vec4(position_in, 1);
     position_out = position_in;
     colors_out = color;
     normals = normals_in;
-    light = light_in;
+    light_out = light;
 }"""
 
 PHONG_FRAG = """#version 330 core
@@ -46,9 +46,9 @@ out vec4 outColor;
 in vec3 position_out;
 in vec3 colors_out;
 in vec3 normals;
-in vec3 light;
+in vec3 light_out;
 void main() {
-    outColor = vec4(colors_out, 1)*dot(vec4(normals, 1), vec4(light, 1));
+    outColor = vec4(colors_out, 1)*dot(vec4(normals, 1), vec4(light_out, 1));
 }"""
 
 class Cylinder(Node):
@@ -71,7 +71,7 @@ class Suzanne(Node):
         print(self.color_mesh)
         self.add(self.color_mesh)
 
-class ViewerRoboticArm(Viewer):
+class ViewerPhong(Viewer):
     """ Viewer for the robotic arm project """
     def __init__(self, width=640, height=480):
         super().__init__(None)
@@ -84,9 +84,9 @@ class ViewerRoboticArm(Viewer):
 def main():
     """ create a window, add scene objects, then run rendering loop """
 
-    viewer = ViewerRoboticArm()
+    viewer = ViewerPhong()
     rotator_node = RotationControlNode(glfw.KEY_LEFT, glfw.KEY_RIGHT, vec(0, 1, 0))
-    rotator_node.add(Suzanne(light_vector=np.array(((1, 1, 1), 'f'))))
+    rotator_node.add(Suzanne(light_vector=np.array(((1, 1, 1), np.float32))))
     viewer.add(rotator_node)
     viewer.run()
 

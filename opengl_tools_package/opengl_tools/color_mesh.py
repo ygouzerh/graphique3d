@@ -9,12 +9,13 @@ import OpenGL.GL as GL              # standard Python OpenGL wrapper
 class ColorMesh:
     """ ColorMesh, high level object for an object """
 
-    def __init__(self, attributes, index=None, primitive=GL.GL_TRIANGLES, usage=GL.GL_STATIC_DRAW):
+    def __init__(self, attributes, index=None, uniforms={}, primitive=GL.GL_TRIANGLES, usage=GL.GL_STATIC_DRAW):
 
         self.attributes = attributes
         self.index = index
         self.primitive=primitive
         self.usage = usage
+        self.uniforms=uniforms
         self.vertex_array = VertexArray(self.attributes, self.index, self.usage)
 
     def draw(self, projection, view, model, color_shader, color=(1, 1, 1, 1), **param):
@@ -33,7 +34,11 @@ class ColorMesh:
         GL.glUniformMatrix4fv(model_location, 1, True, model)
         GL.glUniform3fv(color_location, 1, color)
 
-        # TODO : verify
+        # Add the uniforms parameters
+        for key, value in self.uniforms.items():
+            location = GL.glGetUniformLocation(color_shader.glid, key)
+            GL.glUniformMatrix4fv(location, 1, True, value)
+
         # Add the other parameters
         for key, value in param.items():
             location = GL.glGetUniformLocation(color_shader.glid, key)
@@ -67,6 +72,10 @@ class ColorMesh:
             self.setAttributes(self.getAttributes() + [attribut])
         else:
             raise ValueError("Attribut parameter need to be different from None")
+
+    def addUniform(self, uniform):
+        """ Add a tuple of uniforms variables """
+        self.uniforms.add(uniform)
 
     def __str__(self):
         start = "ColorMesh("
