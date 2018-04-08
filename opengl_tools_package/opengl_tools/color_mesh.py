@@ -15,7 +15,7 @@ class ColorMesh:
         self.index = index
         self.primitive=primitive
         self.usage = usage
-        self.uniforms=uniforms
+        self.uniforms3fv=uniforms
         self.vertex_array = VertexArray(self.attributes, self.index, self.usage)
 
     def draw(self, projection, view, model, color_shader, color=(1, 1, 1, 1), **param):
@@ -35,9 +35,9 @@ class ColorMesh:
         GL.glUniform3fv(color_location, 1, color)
 
         # Add the uniforms parameters
-        for key, value in self.uniforms.items():
+        for key, value in self.uniforms3fv.items():
             location = GL.glGetUniformLocation(color_shader.glid, key)
-            GL.glUniformMatrix4fv(location, 1, True, value)
+            GL.glUniform3fv(location, 1, True, value)
 
         # Add the other parameters
         for key, value in param.items():
@@ -73,10 +73,10 @@ class ColorMesh:
         else:
             raise ValueError("Attribut parameter need to be different from None")
 
-    def addUniform(self, uniform):
+    def addUniform3fv(self, uniform3fv):
         """ Add a tuple of uniforms variables """
-        for key, value in uniform.items():
-            self.uniforms[key] = value
+        for key, value in uniform3fv.items():
+            self.uniforms3fv[key] = value
 
     def __str__(self):
         start = "ColorMesh("

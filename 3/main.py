@@ -66,9 +66,7 @@ class Suzanne(Node):
         assert len(objects)
         self.color_mesh = objects[0]
         # Add the light
-        self.light = light_vector
-        self.color_mesh.addUniform({"light" :light_vector})
-        self.color_mesh.addAttribut(self.light)
+        self.color_mesh.addUniform3fv({"light" :light_vector})
         print(self.color_mesh)
         self.add(self.color_mesh)
 
@@ -87,7 +85,7 @@ def main():
 
     viewer = ViewerPhong()
     rotator_node = RotationControlNode(glfw.KEY_LEFT, glfw.KEY_RIGHT, vec(0, 1, 0))
-    rotator_node.add(Suzanne(light_vector=np.array(((1, 1, 1), np.float32))))
+    rotator_node.add(Suzanne(light_vector=(1, 0, 1)))
     viewer.add(rotator_node)
     viewer.run()
 
