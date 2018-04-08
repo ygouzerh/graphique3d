@@ -32,8 +32,11 @@ out vec3 position_out;
 out vec3 colors_out;
 out vec3 normals;
 out vec3 light_out;
+out mat3 modelview33;
 void main() {
-    gl_Position = projection * view * model * vec4(position_in, 1);
+    mat4 modelview = view*model;
+    modelview33 = mat3(modelview);
+    gl_Position = projection * modelview * vec4(position_in, 1);
     position_out = position_in;
     colors_out = color;
     normals = normals_in;
@@ -47,8 +50,11 @@ in vec3 position_out;
 in vec3 colors_out;
 in vec3 normals;
 in vec3 light_out;
+in mat3 modelview33;
 void main() {
-    outColor = vec4(colors_out, 1)*dot(vec4(normals, 1), vec4(light_out, 1));
+    mat3 modelview_transformed = transpose(inverse(modelview33));
+    vec3 new_normals = modelview_transformed*normals;
+    outColor = vec4(colors_out, 1)*dot(vec4(new_normals, 1), vec4(light_out, 1));
 }"""
 
 class Cylinder(Node):
