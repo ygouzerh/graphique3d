@@ -14,7 +14,7 @@ from opengl_tools.pyramids import PyramidColored
 class Viewer:
     """ GLFW viewer window, with classic initialization & graphics loop """
 
-    def __init__(self, shaders, width=640, height=480):
+    def __init__(self, vertex_shader, frag_shader, width=640, height=480):
 
         # version hints: create GL window with >= OpenGL 3.3 and core profile
         glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 3)
@@ -43,7 +43,9 @@ class Viewer:
         GL.glDepthFunc(GL.GL_LESS)
 
         # An hashmap of "name" => Shader()
-        self.shaders = shaders
+        self.vertex_shader = vertex_shader
+        self.frag_shader = frag_shader
+        self.shaders = Shader(self.vertex_shader, self.frag_shader)
 
         # initially empty list of object to draw
         self.drawables = []
