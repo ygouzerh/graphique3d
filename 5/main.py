@@ -100,6 +100,8 @@ class ViewerAnimation(Viewer):
     """ Viewer for the robotic arm project """
     def do_for_each_drawable(self, drawable, view, projection, model, **param):
         drawable.draw(projection, view, model, self.shaders, color=(1, 0, 1), win=self.win, **param)
+        if glfw.get_key(self.win, glfw.KEY_F2) == glfw.PRESS:
+            glfw.set_time(0)
 
 def test_key_frames_1d():
     """ Test KeyFrames 1D"""
